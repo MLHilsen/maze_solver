@@ -64,6 +64,12 @@ class Cell():
 
         self._win = canvas
 
+    def get_middle(self):
+        mid_x = (self._x1 + self._x2) / 2
+        mid_y = (self._y1 + self._y2) / 2
+
+        return mid_x, mid_y
+
     def draw(self):
         top = Line(self.pt_tl, self.pt_tr)
         bottom = Line(self.pt_bl, self.pt_br)
@@ -82,6 +88,21 @@ class Cell():
         if self.has_right_wall:
             self._win.draw_line(right, "red")
 
+    def draw_move(self, to_cell, undo=False):
+        mid_x, mid_y = self.get_middle()
+        pt1 = Point(mid_x, mid_y)
+
+        mid_x, mid_y = to_cell.get_middle()
+        pt2 = Point(mid_x, mid_y)
+
+        ln1 = Line(pt1, pt2)
+
+        if undo:
+            self._win.draw_line(ln1, "grey")
+        else:
+            self._win.draw_line(ln1, "red")
+
+
 
 
 def main():
@@ -96,7 +117,9 @@ def main():
     cell1.draw()
     cell2.draw()
 
-    win.draw_line(l1, "red")
+    cell1.draw_move(cell2)
+
+    #win.draw_line(l1, "red")
 
     win.wait_for_close()
 
