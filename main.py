@@ -1,4 +1,4 @@
-from tkinter import Tk, BOTH, Canvas
+from tkinter import Tk, BOTH, Canvas, Button, BooleanVar
 import time, random
 
 class Window():
@@ -7,13 +7,47 @@ class Window():
         self.height = height
 
         self.__root = Tk()
-        self.__root.title("Title")
+        self.__root.title("Maze Solver")
 
         self.canvas = Canvas(self.__root, width=self.width, height=self.height, background="white")
         self.canvas.pack()
 
         self.running = False
         self.__root.protocol("WM_DELETE_WINDOW", self.close)
+
+    def get_size(self):
+        size_determined = BooleanVar()
+        size_determined.set(False)
+
+        def small():
+            global num_cols
+            global num_rows
+            global cell_xy
+            num_cols = 18
+            num_rows = 20
+            cell_xy = 30
+            size_determined.set(True)
+
+        button1 = Button(text="Small Maze", command=small)
+        button1.place(x=50, y=50)
+
+        def large():
+            global num_cols
+            global num_rows
+            global cell_xy
+            num_cols = 35
+            num_rows = 50
+            cell_xy = 15
+            size_determined.set(True)
+
+        button2 = Button(text="Large Maze", command=large)
+        button2.place(x=200, y=50)
+
+        self.__root.wait_variable(size_determined)
+        
+        button1.destroy()
+        button2.destroy()
+        
 
     def redraw(self):
         self.__root.update_idletasks()
@@ -152,7 +186,7 @@ class Maze():
         y2 = self.y1 + (i * self.cell_size_y) + self.cell_size_y
 
         self._cells[i][j].draw(x1, y1, x2, y2)
-        self._animate()
+        #self._animate() # Comment out to skip maze creation cinematic
 
     def _break_entrance_and_exit(self):
         self._cells[0][0].has_top_wall = False
@@ -267,7 +301,7 @@ class Maze():
     def _animate(self):
         #return
         self._win.redraw()
-        time.sleep(0.01)
+        time.sleep(0.0001)
 
 
 def main():
@@ -284,7 +318,21 @@ def main():
     cell1.draw_move(cell2)
     '''
 
-    maze = Maze(10, 10, 8, 10, 50, 50, win)
+    padding_x, padding_y = 10, 10
+    # num_cols = 35
+    # num_rows = 50
+    # cell_xy = 15
+
+    win.get_size()    
+
+    maze = Maze(padding_x,
+                padding_y,
+                num_cols,
+                num_rows,
+                cell_xy,
+                cell_xy,
+                win)
+    
     maze._create_cells()
     maze._break_entrance_and_exit()
     maze._break_walls_r(0, 0)
