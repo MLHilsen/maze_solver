@@ -263,14 +263,6 @@ class Maze():
         if (i == self.num_rows - 1) and (j == self.num_cols - 1):
             return True
         
-        if (i - 1 > 0) and (self._cells[i][j].has_top_wall == False) and (self._cells[i - 1][j].visited == False): # Check Up
-            self._cells[i][j].draw_move(self._cells[i - 1][j])
-
-            if self._solve_r(i - 1, j):
-                return True
-            else:
-                self._cells[i][j].draw_move(self._cells[i - 1][j], undo=True)
-
         if (i + 1 < self.num_rows) and (self._cells[i][j].has_bottom_wall == False) and (self._cells[i + 1][j].visited == False): # Check Down
             self._cells[i][j].draw_move(self._cells[i + 1][j])
 
@@ -279,14 +271,6 @@ class Maze():
             else:
                 self._cells[i][j].draw_move(self._cells[i + 1][j], undo=True)
 
-        if (j - 1 > 0) and (self._cells[i][j].has_left_wall == False) and (self._cells[i][j - 1].visited == False): # Check Left
-            self._cells[i][j].draw_move(self._cells[i][j - 1])
-
-            if self._solve_r(i, j - 1):
-                return True
-            else:
-                self._cells[i][j].draw_move(self._cells[i][j - 1], undo=True)
-
         if (j + 1 < self.num_cols) and (self._cells[i][j].has_right_wall == False) and (self._cells[i][j + 1].visited == False): # Check Right
             self._cells[i][j].draw_move(self._cells[i][j + 1])
 
@@ -294,6 +278,22 @@ class Maze():
                 return True
             else:
                 self._cells[i][j].draw_move(self._cells[i][j + 1], undo=True)
+
+        if (i - 1 > 0) and (self._cells[i][j].has_top_wall == False) and (self._cells[i - 1][j].visited == False): # Check Up
+            self._cells[i][j].draw_move(self._cells[i - 1][j])
+
+            if self._solve_r(i - 1, j):
+                return True
+            else:
+                self._cells[i][j].draw_move(self._cells[i - 1][j], undo=True)
+
+        if (j - 1 > 0) and (self._cells[i][j].has_left_wall == False) and (self._cells[i][j - 1].visited == False): # Check Left
+            self._cells[i][j].draw_move(self._cells[i][j - 1])
+
+            if self._solve_r(i, j - 1):
+                return True
+            else:
+                self._cells[i][j].draw_move(self._cells[i][j - 1], undo=True)
 
         return False
 
