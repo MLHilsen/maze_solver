@@ -1,5 +1,6 @@
-from tkinter import Tk, BOTH, Canvas, Button, BooleanVar
+from tkinter import Tk, BOTH, Canvas, Button, BooleanVar, Label
 import time, random
+from collections import deque
 
 class Window():
     def __init__(self, width, height):
@@ -18,6 +19,25 @@ class Window():
     def get_size(self):
         size_determined = BooleanVar()
         size_determined.set(False)
+
+        search_label = Label(text = "Depth First Search", fg = "white",)
+        search_label.pack(pady=20)
+
+        search_toggle_var = BooleanVar()
+        search_toggle_var.set(False) # False:Depth True:Breadth
+
+        def toggle():
+            if search_toggle.config('relief')[-1] == 'sunken':
+                search_toggle.config(relief="raised")
+                search_toggle_var.set(False)
+                search_label.config(text = "Depth First Search")
+            else:
+                search_toggle.config(relief="sunken")
+                search_toggle_var.set(True)
+                search_label.config(text = "Breadth First Search")
+
+        search_toggle = Button(text="Toggle", width=12, relief="raised", command=toggle)
+        search_toggle.pack(pady=5)
 
         def small():
             global num_cols
@@ -47,6 +67,9 @@ class Window():
         
         button1.destroy()
         button2.destroy()
+        search_toggle.destroy()
+
+        return search_toggle_var.get()
         
 
     def redraw(self):
@@ -297,6 +320,46 @@ class Maze():
 
         return False
 
+    def solve_bfs(self):
+        queue = deque()
+        queue.append((0, 0))
+        self._cells[0][0].visited = True
+
+        while queue:
+            i, j = queue.popleft()
+
+            if (i == self.num_rows - 1) and (j == self.num_cols - 1):
+                return True
+
+            # Check Down
+            if (i + 1 < self.num_rows) and (not self._cells[i][j].has_bottom_wall) and (not self._cells[i + 1][j].visited):
+                self._cells[i][j].draw_move(self._cells[i + 1][j])
+                self._cells[i + 1][j].visited = True
+                queue.append((i + 1, j))
+
+            # Check Right
+            if (j + 1 < self.num_cols) and (not self._cells[i][j].has_right_wall) and (not self._cells[i][j + 1].visited):
+                self._cells[i][j].draw_move(self._cells[i][j + 1])
+                self._cells[i][j + 1].visited = True
+                queue.append((i, j + 1))
+
+            # Check Up
+            if (i - 1 >= 0) and (not self._cells[i][j].has_top_wall) and (not self._cells[i - 1][j].visited):
+                self._cells[i][j].draw_move(self._cells[i - 1][j])
+                self._cells[i - 1][j].visited = True
+                queue.append((i - 1, j))
+
+            # Check Left
+            if (j - 1 >= 0) and (not self._cells[i][j].has_left_wall) and (not self._cells[i][j - 1].visited):
+                self._cells[i][j].draw_move(self._cells[i][j - 1])
+                self._cells[i][j - 1].visited = True
+                queue.append((i, j - 1))
+
+            self._animate()
+
+        return False
+
+
 
     def _animate(self):
         #return
@@ -322,7 +385,7 @@ def main():
     # num_rows = 50
     # cell_xy = 15
 
-    win.get_size()    
+    search_var = win.get_size()
 
     maze = Maze(padding_x,
                 padding_y,
@@ -336,7 +399,11 @@ def main():
     maze._break_entrance_and_exit()
     maze._break_walls_r(0, 0)
     maze._reset_cells_visited()
-    maze.solve()
+
+    if search_var:
+        maze.solve_bfs()
+    else:
+        maze.solve()
 
     win.wait_for_close()
 
